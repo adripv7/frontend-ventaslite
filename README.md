@@ -33,6 +33,10 @@ Para reiniciar, detén y vuelve a iniciar ambos servidores con `Ctrl+C` y los co
 
 Se crean al ejecutar `php artisan migrate --seed` en el backend. Son cuentas locales de desarrollo.
 
+## Wireframe inicial
+
+El prototipo previo al desarrollo está en Figma: [Prototipo VentasLite](https://www.figma.com/design/4afz1UyHiP5B5ETJtXBRzi/Prototipo-ventasLite?node-id=0-1&t=EvkQ7iMEhg9GzWAE-1). Asegúrate de que el enlace permita verlo a las personas que evalúen la prueba.
+
 ## Funciones
 
 - Login, restauración de sesión, cierre de sesión y permisos con Laravel Sanctum.
