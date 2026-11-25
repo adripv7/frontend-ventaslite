@@ -1,42 +1,103 @@
-import { LogOut, ShoppingCart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuth } from '../../../app/providers/AuthProvider';
+import { catalogApi } from '../../catalog/api/catalogApi';
+import type { Branch } from '../../catalog/types';
+import { getApiErrorMessage } from '../../auth/utils/apiError';
+import { initialReportDates, localDateInput } from '../../../shared/utils/format';
+import { reportsApi } from '../api/reportsApi';
+import { BranchCategoryMatrix } from '../components/BranchCategoryMatrix';
+import { GrossMarginTable } from '../components/GrossMarginTable';
+import { ReportAssistantPanel } from '../components/ReportAssistantPanel';
+import { ReportFilters } from '../components/ReportFilters';
+import { SalesByMonthChart } from '../components/SalesByMonthChart';
+import { SellerRankingCard } from '../components/SellerRankingCard';
+import { SummaryCards } from '../components/SummaryCards';
+import { TopProductsCard } from '../components/TopProductsCard';
+import type { DashboardReport, ReportFilters as FilterValues } from '../types';
+import '../dashboard.css';
+
+function dateRange(days: number): { from: string; to: string } {
+  const to = new Date();
+  const from = new Date(to);
+  from.setDate(from.getDate() - (days - 1));
+  return { from: localDateInput(from), to: localDateInput(to) };
+}
 
 export function DashboardPage() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const [filters, setFilters] = useState<FilterValues>(() => ({ ...initialReportDates(), branch_id: '' }));
+  const [range, setRange] = useState('30');
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [report, setReport] = useState<DashboardReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  async function handleLogout() {
-    await logout();
-    toast.success('Sesión cerrada.');
-    navigate('/login', { replace: true });
-  }
+  useEffect(() => {
+    const controller = new AbortController();
+    catalogApi.branches(controller.signal)
+      .then(setBranches)
+      .catch((requestError: unknown) => {
+        if (!controller.signal.aborted) toast.error(getApiErrorMessage(requestError));
+      });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setReport(null);
+    setError('');
+    reportsApi.dashboard(filters, controller.signal)
+      .then(setReport)
+      .catch((requestError: unknown) => {
+        if (!controller.signal.aborted) setError(getApiErrorMessage(requestError));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [filters]);
+
+  const updateRange = useCallback((nextRange: string) => {
+    setRange(nextRange);
+    if (nextRange !== 'custom') {
+      const dates = dateRange(Number(nextRange));
+      setFilters((current) => ({ ...current, ...dates }));
+    }
+  }, []);
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="flex h-18 items-center justify-between border-b border-slate-200 bg-white px-6 sm:px-10">
-        <div className="flex items-center gap-3">
-          <span className="brand-mark brand-mark-small"><ShoppingCart size={19} /></span>
-          <span className="font-bold text-slate-900">VentasLite</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden text-right sm:block">
-            <p className="text-sm font-semibold text-slate-800">{user?.name}</p>
-            <p className="text-xs text-slate-500">{user?.role}</p>
-          </div>
-          <button className="logout-button" onClick={handleLogout} type="button">
-            <LogOut size={16} /> <span>Salir</span>
+    <div className="space-y-5 sm:space-y-6">
+      <ReportFilters filters={filters} branches={branches} range={range} onRangeChange={updateRange} onFilterChange={setFilters} />
+
+      {error && (
+        <div className="flex flex-col gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 sm:flex-row sm:items-center sm:justify-between" role="alert">
+          <span>{error}</span>
+          <button className="report-outline-button self-start" onClick={() => setFilters((current) => ({ ...current }))} type="button">
+            <RefreshCw size={15} /> Reintentar
           </button>
         </div>
-      </header>
-      <section className="mx-auto max-w-5xl px-6 py-16">
-        <p className="text-sm font-semibold uppercase tracking-wider text-indigo-600">Sesión validada</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Bienvenido, {user?.name}</h1>
-        <p className="mt-3 max-w-2xl text-slate-600">
-          La conexión con Laravel y Sanctum está lista. Continuaremos con el dashboard y los módulos del prototipo paso a paso.
-        </p>
-      </section>
-    </main>
+      )}
+
+      {loading && !report && (
+        <div className="grid min-h-56 place-items-center report-card text-sm text-slate-500">
+          <span className="flex items-center gap-2"><RefreshCw className="animate-spin text-indigo-600" size={18} /> Cargando reportes…</span>
+        </div>
+      )}
+
+      {report && (
+        <>
+          <SummaryCards summary={report.summary} />
+          <SalesByMonthChart data={report.sales_by_month} filters={filters} />
+          <div className="grid items-start gap-5 xl:grid-cols-2">
+            <TopProductsCard products={report.top_products} filters={filters} />
+            <SellerRankingCard ranking={report.seller_ranking} filters={filters} />
+          </div>
+          <BranchCategoryMatrix matrix={report.branch_category_matrix} filters={filters} />
+          <GrossMarginTable rows={report.gross_margin_by_category} filters={filters} />
+          <ReportAssistantPanel filters={filters} />
+        </>
+      )}
+    </div>
   );
 }

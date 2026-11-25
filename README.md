@@ -1,31 +1,37 @@
-<<<<<<< HEAD
 # VentasLite Frontend
 
-SPA de VentasLite con React, TypeScript, Vite y Tailwind CSS. Este proyecto vive junto al backend `backend-ventaslite` y consume su API REST.
+Aplicación SPA de VentasLite construida con React, TypeScript, Vite y Tailwind CSS. El frontend es un repositorio independiente que consume la API REST de Laravel en `../backend-ventaslite`.
+
+## Módulos
+
+- Acceso y sesión con Laravel Sanctum (`POST /api/login`, `GET /api/user`, `POST /api/logout`).
+- Dashboard de reportes con fechas y sucursal, indicadores, ventas mensuales, productos destacados, ranking de vendedores, matriz sucursal/categoría, márgenes y exportaciones CSV.
+- Asistente analítico conectado a `POST /api/reports/assistant`, al final del dashboard. Renderiza Markdown sin HTML ejecutable.
+- Punto de venta con catálogo por sucursal, búsqueda por SKU/nombre, categoría, inventario, carrito y registro por `POST /api/sales`.
+- Historial con búsqueda, estado, sucursal y fechas, detalle y cancelación auditada cuando el usuario tiene permiso.
 
 ## Estructura
 
-- `src/app`: rutas y proveedores globales.
-- `src/features`: módulos por dominio (autenticación, dashboard, ventas, reportes).
-- `src/shared`: cliente HTTP y componentes reutilizables.
-- `src/styles`: estilos globales y tokens de diseño.
+- `src/app`: rutas protegidas, layout y proveedor de autenticación.
+- `src/features`: módulos separados por dominio, con tipos, API, páginas y componentes.
+- `src/shared`: cliente Axios y utilidades compartidas.
+- `src/styles`: estilos globales; cada módulo mantiene sus propios estilos junto a sus componentes.
 
-## API local
+Consulta [docs/implementacion-frontend.md](docs/implementacion-frontend.md) para el detalle de la arquitectura por componentes, endpoints y correcciones aplicadas durante la integración.
 
-En desarrollo, Vite redirige `/api` a `http://127.0.0.1:8000` para que el navegador no necesite CORS entre puertos. Ajusta `VITE_PROXY_API_TARGET` si Laravel corre en otra dirección.
+## Desarrollo local
 
-En Vercel configura `VITE_API_BASE_URL` con la URL HTTPS pública del backend y el sufijo `/api`. El backend debe permitir el dominio de Vercel en `CORS_ALLOWED_ORIGINS`.
+Desde esta carpeta instala las dependencias (incluidas las de Markdown del asistente) y arranca Vite:
 
-La sesión usa token Bearer de Sanctum guardado en `sessionStorage`; al volver a cargar la página valida el token con `GET /api/user`. El token no se comparte con código del lado servidor ni se guarda en el repositorio.
+```bash
+npm install
+npm run dev
+```
 
-## Módulo implementado
+Inicia Laravel por separado desde `../backend-ventaslite` con `php artisan serve`. El proxy de Vite envía `/api` a `http://127.0.0.1:8000`, así que el navegador usa el mismo origen y no requiere CORS durante el desarrollo. Para otra dirección local, define `VITE_PROXY_API_TARGET`.
 
-- Login conectado a `POST /api/login`.
-- Restauración y validación de sesión con `GET /api/user`.
-- Cierre de sesión con `POST /api/logout`.
-- Manejo de errores de validación, credenciales, red y límite 429.
-- Pantalla protegida provisional para comprobar el flujo antes de construir los módulos del prototipo.
-=======
-# frontend-ventaslite
-Proyecto prueba tecnica front end
->>>>>>> 217ae190f7759eefe3ae2ab3ae5c46fb8eeb5463
+## Producción
+
+En Vercel configura `VITE_API_BASE_URL` con la URL HTTPS pública del backend y el sufijo `/api`. En Laravel agrega el dominio del frontend a `CORS_ALLOWED_ORIGINS`. No incluyas secretos del backend en variables `VITE_*`.
+
+La sesión se conserva en `sessionStorage` y se valida al recargar mediante `GET /api/user`. Los menús y rutas se filtran con los permisos enviados por Laravel.

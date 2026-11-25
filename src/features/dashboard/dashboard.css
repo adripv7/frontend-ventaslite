@@ -1,0 +1,7 @@
+.dashboard-page { width: 100%; min-width: 0; }
+@media (max-width: 767px) {
+  .report-filter-bar { padding: .8rem; }
+  .report-filter-control { width: 100%; }
+  .report-date-input { flex: 1; }
+  .report-card { border-radius: .85rem; }
+}
