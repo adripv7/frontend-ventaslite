@@ -33,6 +33,15 @@ Para reiniciar, detén y vuelve a iniciar ambos servidores con `Ctrl+C` y los co
 
 Se crean al ejecutar `php artisan migrate --seed` en el backend. Son cuentas locales de desarrollo.
 
+## Demo pública
+
+- Aplicación: [VentasLite en Netlify](https://frontend-ventaslite.netlify.app/login).
+- API: `https://prueba-tecnica-production-cf17e5ac.up.railway.app/api`.
+- Administrador: `admin@ventaslite.test` / `password`.
+- Vendedor: `vendedor.s01.01@ventaslite.test` / `password`.
+
+Las cuentas son para la demostración de la prueba técnica y usan datos sembrados. No reutilices estas contraseñas fuera de ese entorno.
+
 ## Wireframe inicial
 
 El prototipo previo al desarrollo está en Figma: [Prototipo VentasLite](https://www.figma.com/design/4afz1UyHiP5B5ETJtXBRzi/Prototipo-ventasLite?node-id=0-1&t=EvkQ7iMEhg9GzWAE-1). Asegúrate de que el enlace permita verlo a las personas que evalúen la prueba.
@@ -70,7 +79,7 @@ npm run preview   # Servir localmente la compilación para revisión manual
 
 Por defecto Axios usa `/api` y Vite lo redirige al Laravel local. Para producción define `VITE_API_BASE_URL` con la URL HTTPS pública terminada en `/api`, por ejemplo `https://api.ejemplo.com/api`. Esa URL es pública; no pongas secretos ni la llave de Groq en variables `VITE_*`.
 
-En Laravel configura `CORS_ALLOWED_ORIGINS` con el dominio exacto del frontend publicado. Vercel debe aplicar fallback de rutas SPA a `index.html` para que `/dashboard`, `/pos` y `/sales` funcionen al refrescar.
+En Railway configura `CORS_ALLOWED_ORIGINS=https://frontend-ventaslite.netlify.app`. Netlify aplica el fallback de rutas SPA definido en `public/_redirects` para que `/login`, `/dashboard`, `/pos` y `/sales` funcionen al abrir o refrescar esas rutas.
 
 La sesión conserva el token temporalmente en `sessionStorage` y lo valida contra `GET /api/user` al abrir o recargar la aplicación. Laravel sigue siendo responsable de las reglas de permisos y sucursal; ocultar un botón en React nunca sustituye la autorización del backend.
 
