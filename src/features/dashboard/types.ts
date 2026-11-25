@@ -53,4 +53,15 @@ export interface AssistantAnswer {
   answer: string;
   model: string;
   filters: { from: string; to: string; branch_id: number | null };
+  usage: { input_tokens: number; output_tokens: number; total_tokens: number } | null;
+}
+
+export interface AssistantStatus {
+  provider: 'ollama' | 'groq' | 'unknown';
+  model: string;
+  configured: boolean;
+  connected: boolean;
+  usage_period: string;
+  usage: { input_tokens: number; output_tokens: number; total_tokens: number };
+  last_request_at: string | null;
 }

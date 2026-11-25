@@ -13,6 +13,7 @@ import { ReportFilters } from '../components/ReportFilters';
 import { SalesByMonthChart } from '../components/SalesByMonthChart';
 import { SellerRankingCard } from '../components/SellerRankingCard';
 import { SummaryCards } from '../components/SummaryCards';
+import { DashboardSkeleton } from '../components/DashboardSkeleton';
 import { TopProductsCard } from '../components/TopProductsCard';
 import type { DashboardReport, ReportFilters as FilterValues } from '../types';
 import '../dashboard.css';
@@ -69,6 +70,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-5 sm:space-y-6">
       <ReportFilters filters={filters} branches={branches} range={range} onRangeChange={updateRange} onFilterChange={setFilters} />
+      <ReportAssistantPanel filters={filters} />
 
       {error && (
         <div className="flex flex-col gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 sm:flex-row sm:items-center sm:justify-between" role="alert">
@@ -79,11 +81,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      {loading && !report && (
-        <div className="grid min-h-56 place-items-center report-card text-sm text-slate-500">
-          <span className="flex items-center gap-2"><RefreshCw className="animate-spin text-indigo-600" size={18} /> Cargando reportes…</span>
-        </div>
-      )}
+      {loading && !report && <DashboardSkeleton />}
 
       {report && (
         <>
@@ -93,9 +91,8 @@ export function DashboardPage() {
             <TopProductsCard products={report.top_products} filters={filters} />
             <SellerRankingCard ranking={report.seller_ranking} filters={filters} />
           </div>
-          <BranchCategoryMatrix matrix={report.branch_category_matrix} filters={filters} />
+          <BranchCategoryMatrix matrix={report.branch_category_matrix} filters={filters} onShowAllBranches={() => setFilters((current) => ({ ...current, branch_id: '' }))} />
           <GrossMarginTable rows={report.gross_margin_by_category} filters={filters} />
-          <ReportAssistantPanel filters={filters} />
         </>
       )}
     </div>

@@ -96,6 +96,7 @@ export function ReportAssistantPanel({ filters }: { filters: ReportFilters }) {
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer.answer}</ReactMarkdown>
           </div>
           <p className="mt-4 text-[11px] text-slate-500">Periodo consultado: {answer.filters.from} a {answer.filters.to}</p>
+          {answer.usage && <p className="mt-1 text-[11px] text-slate-500">Tokens de esta consulta: {answer.usage.input_tokens.toLocaleString('es-MX')} entrada · {answer.usage.output_tokens.toLocaleString('es-MX')} salida · {answer.usage.total_tokens.toLocaleString('es-MX')} total</p>}
         </div>
       )}
     </section>

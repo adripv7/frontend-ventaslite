@@ -1,37 +1,73 @@
-# VentasLite Frontend
+# VentasLite — Frontend
 
-Aplicación SPA de VentasLite construida con React, TypeScript, Vite y Tailwind CSS. El frontend es un repositorio independiente que consume la API REST de Laravel en `../backend-ventaslite`.
+Aplicación web SPA construida con React, TypeScript, Vite y Tailwind CSS. Consume el API Laravel de `../backend-ventaslite`. Frontend y backend son proyectos/repositorios independientes.
 
-## Módulos
+## Requisitos
 
-- Acceso y sesión con Laravel Sanctum (`POST /api/login`, `GET /api/user`, `POST /api/logout`).
-- Dashboard de reportes con fechas y sucursal, indicadores, ventas mensuales, productos destacados, ranking de vendedores, matriz sucursal/categoría, márgenes y exportaciones CSV.
-- Asistente analítico conectado a `POST /api/reports/assistant`, al final del dashboard. Renderiza Markdown sin HTML ejecutable.
-- Punto de venta con catálogo por sucursal, búsqueda por SKU/nombre, categoría, inventario, carrito y registro por `POST /api/sales`.
-- Historial con búsqueda, estado, sucursal y fechas, detalle y cancelación auditada cuando el usuario tiene permiso.
+- Node.js y npm compatibles con Vite 7.
+- Backend iniciado en `http://127.0.0.1:8000` y base inicializada para tener acceso a los datos.
 
-## Estructura
+## Arrancar todo en local
 
-- `src/app`: rutas protegidas, layout y proveedor de autenticación.
-- `src/features`: módulos separados por dominio, con tipos, API, páginas y componentes.
-- `src/shared`: cliente Axios y utilidades compartidas.
-- `src/styles`: estilos globales; cada módulo mantiene sus propios estilos junto a sus componentes.
-
-Consulta [docs/implementacion-frontend.md](docs/implementacion-frontend.md) para el detalle de la arquitectura por componentes, endpoints y correcciones aplicadas durante la integración.
-
-## Desarrollo local
-
-Desde esta carpeta instala las dependencias (incluidas las de Markdown del asistente) y arranca Vite:
+Primero, en una terminal, prepara e inicia Laravel desde `../backend-ventaslite` siguiendo su README. Luego abre otra terminal en la raíz `frontend-ventaslite`:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Inicia Laravel por separado desde `../backend-ventaslite` con `php artisan serve`. El proxy de Vite envía `/api` a `http://127.0.0.1:8000`, así que el navegador usa el mismo origen y no requiere CORS durante el desarrollo. Para otra dirección local, define `VITE_PROXY_API_TARGET`.
+Abre la dirección que reporte Vite, normalmente `http://localhost:5173`. Deja abiertas las dos terminales. Vite proxya las peticiones `/api` a Laravel, así que en desarrollo no se necesita habilitar CORS para el navegador.
 
-## Producción
+Si el backend escucha en otro lugar, crea `frontend-ventaslite/.env.local` con:
 
-En Vercel configura `VITE_API_BASE_URL` con la URL HTTPS pública del backend y el sufijo `/api`. En Laravel agrega el dominio del frontend a `CORS_ALLOWED_ORIGINS`. No incluyas secretos del backend en variables `VITE_*`.
+```dotenv
+VITE_PROXY_API_TARGET=http://127.0.0.1:8000
+```
 
-La sesión se conserva en `sessionStorage` y se valida al recargar mediante `GET /api/user`. Los menús y rutas se filtran con los permisos enviados por Laravel.
+Para reiniciar, detén y vuelve a iniciar ambos servidores con `Ctrl+C` y los comandos anteriores.
+
+## Cuenta de prueba
+
+- Admin: `admin@ventaslite.test` / `password`.
+- Vendedor: `vendedor.s01.01@ventaslite.test` / `password`.
+
+Se crean al ejecutar `php artisan migrate --seed` en el backend. Son cuentas locales de desarrollo.
+
+## Funciones
+
+- Login, restauración de sesión, cierre de sesión y permisos con Laravel Sanctum.
+- Dashboard con filtros, indicadores, ventas por mes, productos, ranking, matriz por sucursal/categoría, márgenes y exportación CSV.
+- Panel de IA para preguntas sobre reportes y resumen ejecutivo, con estado del proveedor y consumo de tokens reportado por el backend.
+- Punto de venta con catálogo, filtro, existencias, carrito y registro de ventas.
+- Historial con filtros, detalle y cancelación autorizada.
+- Diseño responsivo, estados de carga, avisos, y temas claro/oscuro.
+
+## Organización del código
+
+- `src/app`: rutas, guards, proveedores globales y layout.
+- `src/features`: módulos por dominio (`auth`, `catalog`, `dashboard`, `pos`, `sales`).
+- Cada módulo organiza sus páginas, componentes, tipos y acceso API donde corresponde.
+- `src/shared`: cliente Axios y utilidades comunes.
+- `src/styles`: estilos globales; los estilos de un módulo viven junto a ese módulo.
+- `docs/`: notas técnicas del frontend y correcciones registradas.
+
+Las páginas coordinan datos y estado de cada pantalla; componentes hijos renderizan áreas concretas y reciben datos/acciones mediante props. Así se puede cambiar una pieza sin convertir todas las pantallas en un único componente gigante.
+
+## Comandos útiles
+
+```bash
+npm run dev       # Servidor local con recarga rápida
+npm run lint      # Revisión estática de ESLint
+npm run build     # Verificación TypeScript y compilación de producción
+npm run preview   # Servir localmente la compilación para revisión manual
+```
+
+## Conexión y despliegue
+
+Por defecto Axios usa `/api` y Vite lo redirige al Laravel local. Para producción define `VITE_API_BASE_URL` con la URL HTTPS pública terminada en `/api`, por ejemplo `https://api.ejemplo.com/api`. Esa URL es pública; no pongas secretos ni la llave de Groq en variables `VITE_*`.
+
+En Laravel configura `CORS_ALLOWED_ORIGINS` con el dominio exacto del frontend publicado. Vercel debe aplicar fallback de rutas SPA a `index.html` para que `/dashboard`, `/pos` y `/sales` funcionen al refrescar.
+
+La sesión conserva el token temporalmente en `sessionStorage` y lo valida contra `GET /api/user` al abrir o recargar la aplicación. Laravel sigue siendo responsable de las reglas de permisos y sucursal; ocultar un botón en React nunca sustituye la autorización del backend.
+
+Para más detalle de componentes, autenticación y endpoints, revisa `docs/implementacion-frontend.md` y `docs/requisitos-frontend.md`.

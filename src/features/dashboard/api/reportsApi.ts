@@ -1,5 +1,5 @@
 import { http } from '../../../shared/api/http';
-import type { AssistantAnswer, DashboardReport, ReportFilters } from '../types';
+import type { AssistantAnswer, AssistantStatus, DashboardReport, ReportFilters } from '../types';
 
 function toParams(filters: ReportFilters) {
   return {
@@ -23,6 +23,11 @@ export const reportsApi = {
       question,
       ...toParams(filters),
     });
+    return data.data;
+  },
+
+  async assistantStatus(signal?: AbortSignal): Promise<AssistantStatus> {
+    const { data } = await http.get<{ data: AssistantStatus }>('/reports/assistant/status', { signal });
     return data.data;
   },
 

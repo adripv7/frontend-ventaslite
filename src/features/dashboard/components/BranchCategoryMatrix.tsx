@@ -2,7 +2,7 @@ import type { DashboardReport, ReportFilters } from '../types';
 import { formatMoney } from '../../../shared/utils/format';
 import { CsvExportButton } from './CsvExportButton';
 
-export function BranchCategoryMatrix({ matrix, filters }: { matrix: DashboardReport['branch_category_matrix']; filters: ReportFilters }) {
+export function BranchCategoryMatrix({ matrix, filters, onShowAllBranches }: { matrix: DashboardReport['branch_category_matrix']; filters: ReportFilters; onShowAllBranches: () => void }) {
   return (
     <section className="report-card p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -10,7 +10,10 @@ export function BranchCategoryMatrix({ matrix, filters }: { matrix: DashboardRep
           <h2 className="text-base font-bold text-slate-800">Ventas por sucursal y categoría</h2>
           <p className="mt-1 text-xs text-slate-500">Importes netos antes de IVA · tabla desplazable</p>
         </div>
-        <CsvExportButton filters={filters} section="branch_category_matrix" label="Exportar matriz CSV" />
+        <div className="flex flex-wrap items-center gap-2">
+          {filters.branch_id !== '' && <button className="report-outline-button" onClick={onShowAllBranches} type="button">Ver todas las sucursales</button>}
+          <CsvExportButton filters={filters} section="branch_category_matrix" label="Exportar matriz CSV" />
+        </div>
       </div>
       {matrix.branches.length === 0 ? (
         <div className="empty-report-state mt-5">No hay sucursales para mostrar.</div>

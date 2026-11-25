@@ -1,4 +1,4 @@
-import { LoaderCircle, Package, Plus, Search } from 'lucide-react';
+import { Package, Plus, Search } from 'lucide-react';
 import type { Branch, Category, CatalogProduct } from '../../catalog/types';
 import { formatMoney } from '../../../shared/utils/format';
 
@@ -44,9 +44,7 @@ export function ProductCatalogGrid({
       </div>
 
       {loading ? (
-        <div className="grid min-h-64 place-items-center rounded-2xl border border-slate-200 bg-white text-sm text-slate-500">
-          <span className="flex items-center gap-2"><LoaderCircle className="animate-spin text-indigo-600" size={18} /> Cargando catálogo…</span>
-        </div>
+        <div aria-label="Cargando catálogo" className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3" role="status">{Array.from({ length: 6 }, (_, index) => <div className="product-card h-36 animate-pulse" key={index}><div className="flex justify-between"><div className="h-5 w-14 rounded bg-slate-200" /><div className="h-5 w-20 rounded-full bg-emerald-50" /></div><div className="mt-4 h-4 w-3/4 rounded bg-slate-200" /><div className="mt-2 h-3 w-1/2 rounded bg-slate-100" /><div className="mt-5 h-7 rounded bg-slate-100" /></div>)}</div>
       ) : products.length === 0 ? (
         <div className="empty-report-state min-h-56">
           <Package className="mb-2 text-slate-300" size={34} />
