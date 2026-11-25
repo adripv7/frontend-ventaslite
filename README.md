@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # VentasLite Frontend
 
 SPA de VentasLite con React, TypeScript, Vite y Tailwind CSS. Este proyecto vive junto al backend `backend-ventaslite` y consume su API REST.
@@ -24,3 +25,7 @@ La sesión usa token Bearer de Sanctum guardado en `sessionStorage`; al volver a
 - Cierre de sesión con `POST /api/logout`.
 - Manejo de errores de validación, credenciales, red y límite 429.
 - Pantalla protegida provisional para comprobar el flujo antes de construir los módulos del prototipo.
+=======
+# frontend-ventaslite
+Proyecto prueba tecnica front end
+>>>>>>> 217ae190f7759eefe3ae2ab3ae5c46fb8eeb5463
