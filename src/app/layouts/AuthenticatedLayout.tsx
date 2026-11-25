@@ -54,6 +54,7 @@ function Brand({ collapsed = false }: { collapsed?: boolean }) {
 
 function SidebarStatus({ aiStatus }: { aiStatus: AssistantStatus | null | false }) {
   const canViewReports = useAuth().user?.permissions.includes('reports.view') ?? false;
+  const status = typeof aiStatus === 'object' && aiStatus !== null ? aiStatus : null;
   return (
     <div className="rounded-xl bg-slate-800/80 p-3 text-xs">
       <p className="font-semibold text-white">VentasLite conectado</p>
@@ -61,11 +62,11 @@ function SidebarStatus({ aiStatus }: { aiStatus: AssistantStatus | null | false 
       <p className="mt-2 flex items-center gap-1.5 text-emerald-400"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Sesión activa</p>
       {canViewReports && (
         <div className="mt-2 border-t border-white/10 pt-2">
-          <p className={`flex items-center gap-1.5 font-medium ${aiStatus && aiStatus !== false && aiStatus.connected ? 'text-emerald-400' : 'text-rose-300'}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${aiStatus && aiStatus !== false && aiStatus.connected ? 'bg-emerald-400' : 'bg-rose-400'}`} />
-            IA {aiStatus === null ? 'verificando…' : aiStatus === false ? 'estado no disponible' : aiStatus.connected ? 'conectada' : 'desconectada'}
+          <p className={`flex items-center gap-1.5 font-medium ${status?.connected ? 'text-emerald-400' : 'text-rose-300'}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${status?.connected ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+            IA {aiStatus === null ? 'verificando…' : aiStatus === false ? 'estado no disponible' : status?.connected ? 'conectada' : 'desconectada'}
           </p>
-          {aiStatus && aiStatus !== false && <><p className="mt-1 truncate text-[10px] text-slate-400">{aiStatus.provider} · {aiStatus.model || 'sin modelo'}</p><p className="mt-1 text-[10px] text-slate-300">Tokens este mes: {aiStatus.usage.total_tokens.toLocaleString('es-MX')}</p><p className="text-[10px] text-slate-400">Entrada {aiStatus.usage.input_tokens.toLocaleString('es-MX')} · salida {aiStatus.usage.output_tokens.toLocaleString('es-MX')}</p></>}
+          {status && <><p className="mt-1 truncate text-[10px] text-slate-400">{status.provider} · {status.model || 'sin modelo'}</p><p className="mt-1 text-[10px] text-slate-300">Tokens este mes: {status.usage.total_tokens.toLocaleString('es-MX')}</p><p className="text-[10px] text-slate-400">Entrada {status.usage.input_tokens.toLocaleString('es-MX')} · salida {status.usage.output_tokens.toLocaleString('es-MX')}</p></>}
         </div>
       )}
     </div>

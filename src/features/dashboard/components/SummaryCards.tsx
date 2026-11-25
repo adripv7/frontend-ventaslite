@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, BadgeDollarSign, ReceiptText, TicketPercent, Wallet } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, BadgeDollarSign, TicketPercent, Wallet } from 'lucide-react';
 import type { DashboardReport } from '../types';
 import { formatMoney } from '../../../shared/utils/format';
 

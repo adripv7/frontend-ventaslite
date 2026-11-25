@@ -99,3 +99,11 @@
 
 **Validación:** no se ejecutaron suites ni build en esta entrega.
 
+## 2026-11-25 — Corregir build TypeScript de Vercel
+
+**Error reportado:** Vercel fallaba en `tsc -b` por comparar el estado de IA (unión `AssistantStatus | null | false`) contra `false` después de una comprobación de truthiness; además `SummaryCards` importaba `ReceiptText` sin usar.
+
+**Corrección:** se normalizó el estado a `AssistantStatus | null` antes del render del sidebar y se quitó el import muerto.
+
+**Validación:** `npm run build` terminó correctamente con TypeScript y Vite. Vite conserva una advertencia informativa de que el chunk JavaScript principal supera 500 kB; no impide publicar.
+
